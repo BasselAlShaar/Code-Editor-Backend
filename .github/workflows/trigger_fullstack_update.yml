@@ -1,4 +1,4 @@
-  name: Trigger Fullstack Repo Update
+name: Trigger Fullstack Repo Update
 
 on:
   push:
