@@ -42,4 +42,16 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    protected $table = 'users';
+
+    public function codes(){
+        return $this->hasMany(Code::Class);
+    }
+    public function sentMessages(){
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+    public function receivedMessages(){
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
 }
