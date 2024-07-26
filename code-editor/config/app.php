@@ -181,8 +181,10 @@ return [
     |
     */
 
-    'aliases' => Facade::defaultAliases()->merge([
+    'aliases' => [Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
+    'JWTAuth' => PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth::class,
+    ]
 
 ];
