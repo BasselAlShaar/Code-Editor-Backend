@@ -48,7 +48,7 @@ Route::middleware('auth.user')->group(function () {
     Route::prefix('user/{userID}')->group(function () {
         Route::get('codes', [CodeController::class, 'getAllCodes']);
         Route::get('code/{codeID}', [CodeController::class, 'getCode']);
-        Route::post('code', [CodeController::class, 'createCode']);
+        Route::post('code/', [CodeController::class, 'createCode']);
         Route::put('code/{codeID}', [CodeController::class, 'updateCode']);
         Route::delete('code/{codeID}', [CodeController::class, 'deleteCode']);
     });

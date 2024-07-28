@@ -4,7 +4,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Auth;
+use JWTAuth;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserMiddleWare
@@ -17,14 +18,16 @@ class UserMiddleWare
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            if (JWTAuth::parseToken()->authenticate()) {
-                return $next($request);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Unauthorized', 'error' => $e->getMessage()], 401);
-        }
+            $user = JWTAuth::parseToken()->authenticate();
 
-        return response()->json(['message' => 'Unauthorized'], 401);
+            if (!$user) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            return $next($request);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Token is invalid or expired'], 401);
+        }
     }
     
 }

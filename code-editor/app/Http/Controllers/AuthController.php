@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use PHPOpenSourceSaver\JWTAuth\Exceptions\JWTException;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 use App\Models\User;
+use JWTAuth;
 class AuthController extends Controller
 {
     public function __construct()
@@ -23,7 +23,7 @@ class AuthController extends Controller
             if (!$token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Invalid Credentials'], 401);
             }
-        } catch (JWTException $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => 'Could not create token'], 500);
         }
 
@@ -51,7 +51,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = JWTAuth::fromUser($user);
+        $token = JWTAuth::login($user);
 
         return response()->json([
             'status' => 'success',
@@ -78,14 +78,14 @@ class AuthController extends Controller
     {
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());
-        } catch (JWTException $e) {
+        } catch (Exception $e) {
             return response()->json(['error' => 'Could not refresh token'], 500);
         }
 
         return response()->json([
             'status' => 'success',
             'user' => JWTAuth::user(),
-            'authorisation' => [
+            'JWTAuthorisation' => [
                 'token' => $token,
                 'type' => 'bearer',
             ]

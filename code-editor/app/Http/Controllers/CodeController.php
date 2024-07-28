@@ -14,11 +14,11 @@ class CodeController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function createCode(Request $request){
+    public function createCode(Request $request, $userID){
         $validated_array = $request->validate([
-            'user_id'=>'numeric',
-            'title'=>'text',
-            'content'=>'text',
+            'title'=>'string|required',
+            'content'=>'required',
+            'user_id'=>'numeric|required'
         ]);
         $code = Code::insert($validated_array);
         return response()->json([
@@ -44,7 +44,7 @@ class CodeController extends Controller
      * @param mixed $userID
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function getAllCodesOfUser($userID){
+    public function getAllCodes($userID){
         $user = User::find($userID);
         if($user){
             $codes= Code::join('users', 'codes.user_id', '=', 'users.id')
