@@ -38,7 +38,8 @@ class AuthController extends Controller
     }
 
     public function register(Request $request)
-    {
+{
+    try {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -51,7 +52,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = JWTAuth::login($user);
+        $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'status' => 'success',
@@ -62,7 +63,15 @@ class AuthController extends Controller
                 'type' => 'bearer',
             ]
         ]);
+    } catch (\Exception $e) {
+        \Log::error('Error during registration: ' . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Internal Server Error',
+        ], 500);
     }
+}
+
 
     public function logout()
     {
