@@ -45,21 +45,21 @@ Route::middleware('auth.user')->group(function () {
     });
 
     // Code routes related to users
-    Route::prefix('user/{userID}')->group(function () {
-        Route::get('codes', [CodeController::class, 'getAllCodes']);
-        Route::get('code/{codeID}', [CodeController::class, 'getCode']);
-        Route::post('code/', [CodeController::class, 'createCode']);
-        Route::put('code/{codeID}', [CodeController::class, 'updateCode']);
-        Route::delete('code/{codeID}', [CodeController::class, 'deleteCode']);
+    Route::prefix('codes')->group(function () {
+        Route::get('/', [CodeController::class, 'getAllCodes']);
+        Route::get('/{codeID}', [CodeController::class, 'getCode']);
+        Route::post('/', [CodeController::class, 'createCode']);
+        Route::put('/{codeID}', [CodeController::class, 'updateCode']);
+        Route::delete('/{codeID}', [CodeController::class, 'deleteCode']);
     });
 
     // Message routes related to users
-    Route::prefix('user/{userID}')->group(function () {
-        Route::get('messages', [MessageController::class, 'getAllMessages']);
-        Route::get('message/{messageID}', [MessageController::class, 'getMessage']);
-        Route::post('message', [MessageController::class, 'createMessage']);
-        Route::put('message/{messageID}', [MessageController::class, 'updateMessage']);
-        Route::delete('message/{messageID}', [MessageController::class, 'deleteMessage']);
+    Route::prefix('messages')->group(function () {
+        Route::get('/', [MessageController::class, 'getAllMessages']);
+        Route::get('/{messageID}', [MessageController::class, 'getMessage']);
+        Route::post('/', [MessageController::class, 'createMessage']);
+        Route::put('/{messageID}', [MessageController::class, 'updateMessage']);
+        Route::delete('/{messageID}', [MessageController::class, 'deleteMessage']);
     });
 
 });

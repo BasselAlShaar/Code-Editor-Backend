@@ -4,85 +4,84 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Code;
-use App\Models\User;
+use JWTAuth;
 
 class CodeController extends Controller
 {
-    
     /**
-     * an API that saves the user code in the DB
+     * Save the user code in the DB
      * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function createCode(Request $request, $userID){
-        $validated_array = $request->validate([
-            'title'=>'string|required',
-            'content'=>'required',
-            'user_id'=>'numeric|required'
-        ]);
-        $code = Code::insert($validated_array);
-        return response()->json([
-            'message'=>'code saved',
-            'code'=>$code,
-        ]);
-    }
-
-    /**
-     * an API that retreives a specific code saved
-     * @param mixed $id
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function getCode($id){
-        $code = Code::get($id);
-        return response()->json([
-            'code'=>$code,
-        ]);
-    }
-
-    /**
-     * an API that takes a user ID and retreives all codes this user saved
-     * @param mixed $userID
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function getAllCodes($userID){
-        $user = User::find($userID);
-        if($user){
-            $codes= Code::join('users', 'codes.user_id', '=', 'users.id')
-            ->where('codes.user_id', $userID)
-            ->get();
-
-            return response()->json([
-                'status' => 'success',
-                'user' => $user,
-                'codes' => $codes,
-            ], 200);
-        }
-        else{
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User not found',
-            ], 404);
-        }
-    }
-
-
-    /**
-     * Update a specific code of a user
-     * @param \Illuminate\Http\Request $request
-     * @param mixed $userID
-     * @param mixed $codeID
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function updateCode(Request $request, $userID, $codeID)
+    public function createCode(Request $request)
     {
-        $user = User::find($userID);
-        if (!$user) {
+        // Retrieve the authenticated user
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $validated_array = $request->validate([
+            'title' => 'string|required',
+            'content' => 'required',
+        ]);
+
+        // Add the authenticated user's ID to the validated data
+        $validated_array['user_id'] = $user->id;
+
+        $code = Code::create($validated_array); // Use create for returning the created model
+
+        return response()->json([
+            'message' => 'Code saved',
+            'code' => $code,
+        ]);
+    }
+
+    /**
+     * Retrieve a specific code saved by the authenticated user
+     * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCode($id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $code = Code::where('user_id', $user->id)->find($id);
+        if (!$code) {
             return response()->json([
-                'message' => 'User not found',
+                'message' => 'Code not found',
             ], 404);
         }
 
-        $code = Code::where('user_id', $userID)->find($codeID);
+        return response()->json([
+            'code' => $code,
+        ]);
+    }
+
+    /**
+     * Retrieve all codes saved by the authenticated user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllCodes()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $codes = Code::where('user_id', $user->id)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'codes' => $codes,
+        ], 200);
+    }
+
+    /**
+     * Update a specific code of the authenticated user
+     * @param \Illuminate\Http\Request $request
+     * @param mixed $codeID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateCode(Request $request, $codeID)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        $code = Code::where('user_id', $user->id)->find($codeID);
         if (!$code) {
             return response()->json([
                 'message' => 'Code not found',
@@ -90,7 +89,8 @@ class CodeController extends Controller
         }
 
         $validated_data = $request->validate([
-            'code' => 'required|string',
+            'title' => 'sometimes|string',
+            'content' => 'sometimes|string',
         ]);
 
         $code->update($validated_data);
@@ -102,21 +102,15 @@ class CodeController extends Controller
     }
 
     /**
-     * Delete a specific code of a user
-     * @param mixed $userID
+     * Delete a specific code of the authenticated user
      * @param mixed $codeID
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteCode($userID, $codeID)
+    public function deleteCode($codeID)
     {
-        $user = User::find($userID);
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found',
-            ], 404);
-        }
+        $user = JWTAuth::parseToken()->authenticate();
 
-        $code = Code::where('user_id', $userID)->find($codeID);
+        $code = Code::where('user_id', $user->id)->find($codeID);
         if (!$code) {
             return response()->json([
                 'message' => 'Code not found',
@@ -129,6 +123,4 @@ class CodeController extends Controller
             'message' => 'Code deleted successfully',
         ], 200);
     }
-
 }
-

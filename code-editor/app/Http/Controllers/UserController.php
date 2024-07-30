@@ -4,92 +4,127 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Auth;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Hash;
+
 class UserController extends Controller
 {
     /**
-     * an API that registers a user 
+     * Register a new user.
+     *
      * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function createUser(Request $request){
-        $validated_data=$request->validate([
-            'email'=>'required',
-            'password'=>'required|min:6',
-            'name'=>'required|string',
+    public function createUser(Request $request)
+    {
+        $validatedData = $request->validate([
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'name' => 'required|string',
         ]);
 
-        $user = User::insert($validated_data);
+        // Hash the password before saving
+        $validatedData['password'] = Hash::make($validatedData['password']);
+
+        // Create the user
+        $user = User::create($validatedData);
+
         return response()->json([
-            'message'=>'user created',
-            'user'=>$user,
-        ],201);
+            'message' => 'User created successfully',
+            'user' => $user,
+        ], 201);
     }
 
     /**
-     * an API that gets a specific user based on his ID
-     * @param mixed $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Get a specific user by ID.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getUser($id){
+    public function getUser($id)
+    {
         $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
         return response()->json([
-            'user'=>$user,
-        ],200);
+            'user' => $user,
+        ], 200);
     }
 
     /**
-     * an API that retreives all existing users
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * Retrieve all existing users.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function getAllUsers(){
+    public function getAllUsers()
+    {
         $users = User::all();
         return response()->json([
-            'users'=>$users
-        ],200);
+            'users' => $users,
+        ], 200);
     }
 
     /**
-     * an API that updates a user based on his ID
+     * Update a specific user by ID.
+     *
      * @param \Illuminate\Http\Request $request
-     * @param mixed $id
-     * @return mixed|\Illuminate\Http\JsonResponse
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
      */
-
-    public function updateUser(Request $request,$id){
+    public function updateUser(Request $request, $id)
+    {
         $user = User::find($id);
-        if($user){
-            $validated_data=$request->validate([
-                'email'=>'required|email',
-                'password'=>'required|min:6',
-                'name'=>'required|string',
-            ]);
 
-            $user->update($validated_data);
+        if (!$user) {
             return response()->json([
-                'message'=>'user updated secuessfully'
-            ],204);
-        }else{
-            return response()->json([
-                'message'=>'user not found'
-            ]);
-        }
-    }
-
-        /**
-         * an API that deletes a user based on his ID
-         * @param mixed $id
-         * @return mixed|\Illuminate\Http\JsonResponse
-         */
-        public function deleteUser($id){
-            $user = User::find($id);
-            $user->delete();
-            return response()->json([
-                'message'=>'user deleted'
-            ]);
+                'message' => 'User not found',
+            ], 404);
         }
 
+        $validatedData = $request->validate([
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|min:6',
+            'name' => 'required|string',
+        ]);
+
+        // Hash the password if it is being updated
+        if (isset($validatedData['password'])) {
+            $validatedData['password'] = Hash::make($validatedData['password']);
+        }
+
+        $user->update($validatedData);
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'user' => $user,
+        ], 200);
     }
 
+    /**
+     * Delete a specific user by ID.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteUser($id)
+    {
+        $user = User::find($id);
 
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'User deleted successfully',
+        ], 200);
+    }
+}

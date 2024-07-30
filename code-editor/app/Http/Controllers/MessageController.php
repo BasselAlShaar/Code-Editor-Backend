@@ -5,25 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
+use JWTAuth;
 
 class MessageController extends Controller
 {
-     /**
-     * Get all messages sent or received by a specific user.
+    /**
+     * Get all messages sent or received by the authenticated user.
      *
-     * @param int $userID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getAllMessages($userID)
+    public function getAllMessages()
     {
-        // Find the user to ensure it exists
-        $user = User::find($userID);
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
+        $user = JWTAuth::parseToken()->authenticate();
 
         // Fetch messages sent and received by the user
         $sentMessages = $user->sentMessages;
@@ -38,20 +31,12 @@ class MessageController extends Controller
     /**
      * Get a specific message by its ID.
      *
-     * @param int $userID
      * @param int $messageID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getMessage($userID, $messageID)
+    public function getMessage($messageID)
     {
-        // Find the user to ensure it exists
-        $user = User::find($userID);
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
+        $user = JWTAuth::parseToken()->authenticate();
 
         // Find the message
         $message = Message::find($messageID);
@@ -63,7 +48,7 @@ class MessageController extends Controller
         }
 
         // Check if the message is sent or received by the user
-        if ($message->sender_id !== $userID && $message->receiver_id !== $userID) {
+        if ($message->sender_id !== $user->id && $message->receiver_id !== $user->id) {
             return response()->json([
                 'message' => 'Unauthorized access'
             ], 403);
@@ -78,28 +63,29 @@ class MessageController extends Controller
      * Create a new message.
      *
      * @param \Illuminate\Http\Request $request
-     * @param int $userID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function createMessage(Request $request, $userID)
+    public function createMessage(Request $request)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+
         $validatedData = $request->validate([
             'receiver_id' => 'required|exists:users,id',
             'message' => 'required|string',
         ]);
 
-        // Ensure the user exists
-        $user = User::find($userID);
+        // Ensure the receiver exists
+        $receiver = User::find($validatedData['receiver_id']);
 
-        if (!$user) {
+        if (!$receiver) {
             return response()->json([
-                'message' => 'User not found'
+                'message' => 'Receiver not found'
             ], 404);
         }
 
         // Create the message
         $message = Message::create([
-            'sender_id' => $userID,
+            'sender_id' => $user->id,
             'receiver_id' => $validatedData['receiver_id'],
             'message' => $validatedData['message'],
         ]);
@@ -114,24 +100,16 @@ class MessageController extends Controller
      * Update a specific message.
      *
      * @param \Illuminate\Http\Request $request
-     * @param int $userID
      * @param int $messageID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateMessage(Request $request, $userID, $messageID)
+    public function updateMessage(Request $request, $messageID)
     {
+        $user = JWTAuth::parseToken()->authenticate();
+
         $validatedData = $request->validate([
             'message' => 'required|string',
         ]);
-
-        // Find the user to ensure it exists
-        $user = User::find($userID);
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
 
         // Find the message
         $message = Message::find($messageID);
@@ -143,7 +121,7 @@ class MessageController extends Controller
         }
 
         // Check if the message is sent by the user
-        if ($message->sender_id !== $userID) {
+        if ($message->sender_id !== $user->id) {
             return response()->json([
                 'message' => 'Unauthorized access'
             ], 403);
@@ -161,20 +139,12 @@ class MessageController extends Controller
     /**
      * Delete a specific message.
      *
-     * @param int $userID
      * @param int $messageID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteMessage($userID, $messageID)
+    public function deleteMessage($messageID)
     {
-        // Find the user to ensure it exists
-        $user = User::find($userID);
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User not found'
-            ], 404);
-        }
+        $user = JWTAuth::parseToken()->authenticate();
 
         // Find the message
         $message = Message::find($messageID);
@@ -186,7 +156,7 @@ class MessageController extends Controller
         }
 
         // Check if the message is sent by the user
-        if ($message->sender_id !== $userID) {
+        if ($message->sender_id !== $user->id) {
             return response()->json([
                 'message' => 'Unauthorized access'
             ], 403);

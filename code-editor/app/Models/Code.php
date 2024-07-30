@@ -9,6 +9,12 @@ class Code extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'content',
+        'user_id',
+    ];
+
     protected $table = 'codes';
     public function user(){
         $this->belongsTo(User::class);
