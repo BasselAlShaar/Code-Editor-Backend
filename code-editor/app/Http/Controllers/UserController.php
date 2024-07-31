@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Classes\PHPExcel;
 use Maatwebsite\Excel\Facades\Excel;
 
 
@@ -80,9 +79,10 @@ class UserController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateUser(Request $request, $id)
+    public function updateUser(Request $request,)
     {
-        $user = User::find($id);
+        $user = JWTAuth::parseToken()->authenticate();
+
 
         if (!$user) {
             return response()->json([
@@ -91,7 +91,7 @@ class UserController extends Controller
         }
 
         $validatedData = $request->validate([
-            'email' => 'required|email|unique:users,email,' . $id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|min:6',
             'name' => 'required|string',
         ]);

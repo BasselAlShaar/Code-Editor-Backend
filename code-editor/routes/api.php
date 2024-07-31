@@ -25,10 +25,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-
-
-
-
 // Authentication routes
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
@@ -41,7 +37,7 @@ Route::middleware('auth.user:user')->group(function () {
         //Route::get('/', [UserController::class, 'getAllUsers']);
         Route::post('/', [UserController::class, 'createUser']);
         //Route::get('{id}', [UserController::class, 'getUser']);
-        //Route::put('{id}', [UserController::class, 'updateUser']);
+        Route::put('', [UserController::class, 'updateUser']);
         //Route::delete('{id}', [UserController::class, 'deleteUser']);
     });
 
@@ -74,4 +70,3 @@ Route::middleware(['auth.user:admin'])->group(function () {
         Route::post('/import-users',[UserController::class,'importUsers']);
     });
 });
-
