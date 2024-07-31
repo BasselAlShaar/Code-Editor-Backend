@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -70,6 +71,7 @@ Route::middleware(['auth.user:admin'])->group(function () {
         Route::get('/', function () {return "admin route tested";});
         Route::get('/users', [UserController::class, 'getAllUsers']);
         Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
+        Route::post('/import-users',[UserController::class,'importUsers']);
     });
 });
 

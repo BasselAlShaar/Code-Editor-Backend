@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use App\Models\User;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Classes\PHPExcel;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class UserController extends Controller
 {
@@ -126,5 +130,17 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User deleted successfully',
         ], 200);
+    }
+
+    public function importUsers(Request $request)
+    {
+        $filePath = $request->file('file')->store('temp');
+        
+        try {
+            Excel::import(new UsersImport, $filePath);
+            return response()->json(['success' => true, 'message' => 'Users imported successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Error importing users: ' . $e->getMessage()]);
+        }
     }
 }
