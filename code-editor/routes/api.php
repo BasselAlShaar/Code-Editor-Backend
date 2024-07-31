@@ -69,6 +69,7 @@ Route::middleware(['auth.user:admin'])->group(function () {
     Route::prefix('admin')->group(function() {
         Route::get('/', function () {
             return "admin route tested";
+            
         });
     });
 });
