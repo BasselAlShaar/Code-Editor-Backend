@@ -79,7 +79,7 @@ class UserController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateUser(Request $request,)
+    public function updateUser(Request $request)
     {
         $user = JWTAuth::parseToken()->authenticate();
 
@@ -130,6 +130,24 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User deleted successfully',
         ], 200);
+    }
+
+    public function updateUserPassword(Request $request){
+        $user = JWTAuth::parseToken()->authenticate();
+        if(!$user){
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+        else{
+            $validatedData= $request->validate([
+            'password' => 'required|string|min:6|confirmed',
+            ]);
+            $user->password = Hash::make($request->password);
+            $user->save();
+            return response()->json(['message' => 'Password updated successfully']);
+        }
+        
     }
 
     public function importUsers(Request $request)
