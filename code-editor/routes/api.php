@@ -35,7 +35,7 @@ Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api')
 Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth:api');
 
 // User routes
-Route::middleware('auth.user')->group(function () {
+Route::middleware('auth.user:user')->group(function () {
     Route::prefix('users')->group(function() {
         Route::get('/', [UserController::class, 'getAllUsers']);
         Route::post('/', [UserController::class, 'createUser']);
@@ -63,3 +63,13 @@ Route::middleware('auth.user')->group(function () {
     });
 
 });
+
+//Admin routes
+Route::middleware(['auth.user:admin'])->group(function () {
+    Route::prefix('admin')->group(function() {
+        Route::get('/', function () {
+            return "admin route tested";
+        });
+    });
+});
+
