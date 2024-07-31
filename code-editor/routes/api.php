@@ -37,11 +37,11 @@ Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth:api
 // User routes
 Route::middleware('auth.user:user')->group(function () {
     Route::prefix('users')->group(function() {
-        Route::get('/', [UserController::class, 'getAllUsers']);
+        //Route::get('/', [UserController::class, 'getAllUsers']);
         Route::post('/', [UserController::class, 'createUser']);
-        Route::get('{id}', [UserController::class, 'getUser']);
-        Route::put('{id}', [UserController::class, 'updateUser']);
-        Route::delete('{id}', [UserController::class, 'deleteUser']);
+        //Route::get('{id}', [UserController::class, 'getUser']);
+        //Route::put('{id}', [UserController::class, 'updateUser']);
+        //Route::delete('{id}', [UserController::class, 'deleteUser']);
     });
 
     // Code routes related to users
@@ -67,10 +67,9 @@ Route::middleware('auth.user:user')->group(function () {
 //Admin routes
 Route::middleware(['auth.user:admin'])->group(function () {
     Route::prefix('admin')->group(function() {
-        Route::get('/', function () {
-            return "admin route tested";
-            
-        });
+        Route::get('/', function () {return "admin route tested";});
+        Route::get('/users', [UserController::class, 'getAllUsers']);
+        Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
     });
 });
 
