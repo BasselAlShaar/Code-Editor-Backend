@@ -34,9 +34,9 @@ Route::post('refresh', [AuthController::class, 'refresh'])->middleware('auth:api
 // User routes
 Route::middleware('auth.user:user')->group(function () {
     Route::prefix('users')->group(function() {
-        //Route::get('/', [UserController::class, 'getAllUsers']);
+        Route::get('/', [UserController::class, 'getAllUsers']);
         Route::post('/', [UserController::class, 'createUser']);
-        //Route::get('{id}', [UserController::class, 'getUser']);
+        Route::get('{id}', [UserController::class, 'getUser']);
         Route::put('', [UserController::class, 'updateUser']);
         Route::put('/password',[UserController::class, 'UpdateUserPassword']);
         //Route::delete('{id}', [UserController::class, 'deleteUser']);
