@@ -9,7 +9,6 @@ use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 
-
 class UserController extends Controller
 {
     /**
@@ -140,7 +139,7 @@ class UserController extends Controller
             ], 404);
         }
         else{
-            $validatedData= $request->validate([
+            $request->validate([
             'password' => 'required|string|min:6|confirmed',
             ]);
             $user->password = Hash::make($request->password);
@@ -151,14 +150,24 @@ class UserController extends Controller
     }
 
     public function importUsers(Request $request)
-    {
-        $filePath = $request->file('file')->store('temp');
-        
-        try {
-            Excel::import(new UsersImport, $filePath);
-            return response()->json(['success' => true, 'message' => 'Users imported successfully!']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error importing users: ' . $e->getMessage()]);
-        }
+{
+    // Store the uploaded file temporarily
+    $filePath = $request->file('file')->store('temp');
+
+    try {
+        // Use Excel import
+        Excel::import(new UsersImport, storage_path('app/' . $filePath));
+
+        // Return success response
+        return response()->json(['success' => true, 'message' => 'Users imported successfully!']);
+    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        // Handle validation exceptions
+        $failures = $e->failures();
+        return response()->json(['success' => false, 'message' => 'Validation errors occurred', 'errors' => $failures]);
+    } catch (\Exception $e) {
+        // Handle all other exceptions
+        return response()->json(['success' => false, 'message' => 'Error importing users: ' . $e->getMessage()]);
     }
+}
+
 }
