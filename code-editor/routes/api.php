@@ -39,6 +39,7 @@ Route::middleware('auth.user:user')->group(function () {
         Route::get('{id}', [UserController::class, 'getUser']);
         Route::put('', [UserController::class, 'updateUser']);
         Route::put('/password',[UserController::class, 'UpdateUserPassword']);
+        
         //Route::delete('{id}', [UserController::class, 'deleteUser']);
     });
 
@@ -69,5 +70,6 @@ Route::middleware(['auth.user:admin'])->group(function () {
         Route::get('/users', [UserController::class, 'getAllUsers']);
         Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
         Route::post('/import-users',[UserController::class,'importUsers']);
+        
     });
 });

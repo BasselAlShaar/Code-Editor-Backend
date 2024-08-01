@@ -23,6 +23,8 @@ class UserMiddleware
                 return response()->json(['message' => 'Forbidden'], 403);
             }
 
+            
+
             return $next($request);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Token is invalid or expired'], 401);

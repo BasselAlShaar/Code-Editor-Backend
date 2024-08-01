@@ -17,6 +17,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+
         $credentials = $request->only('email', 'password');
 
         try {
@@ -27,9 +28,12 @@ class AuthController extends Controller
             return response()->json(['error' => 'Could not create token'], 500);
         }
 
+        
+
         return response()->json([
             'status' => 'success',
-            'user' => JWTAuth::user(),
+           // 'user' => JWTAuth::user(),
+            'role'=>JWTAuth::user()->role,
             'authorisation' => [
                 'token' => $token,
                 'type' => 'bearer',

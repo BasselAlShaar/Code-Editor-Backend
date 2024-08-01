@@ -140,7 +140,7 @@ class UserController extends Controller
         }
         else{
             $request->validate([
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6',
             ]);
             $user->password = Hash::make($request->password);
             $user->save();
